@@ -20,7 +20,7 @@ export default async function AdminLoginPage() {
         <LoginForm />
       </div>
       <p className="mt-6 max-w-sm text-center text-[12px] leading-relaxed text-muted">
-        Forgot your password? Send yourself a reset link from Supabase → Authentication → Users.
+        Forgot your password? contact the site administrator to reset it.
       </p>
     </div>
   );
