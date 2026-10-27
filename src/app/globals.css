@@ -1,0 +1,229 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  /* Cormorant defaults to old-style figures (1 looks like I, 0 like o); prices and order numbers need lining ones. */
+  --font-serif--font-feature-settings: "lnum" 1;
+  --font-script: var(--font-allura), cursive;
+}
+
+/* Warm, quiet neutrals so the crochet colours carry the page. Every colour is a
+   variable, so the dark palette below swaps the whole site in one place. */
+@theme {
+  --color-paper: #faf8f5; /* page background */
+  --color-surface: #ffffff; /* cards and inputs */
+  --color-canvas: #f5f3ef; /* admin background */
+  --color-cream: #f3efe9;
+  --color-sand: #ebe5dc;
+  --color-line: #e6e0d7;
+  --color-ink: #2b2927;
+  --color-ink-2: #5c5650;
+  --color-muted: #948c82;
+  --color-clay: #a3523f;
+  --color-clay-soft: #f8eee9;
+  --color-moss: #5f6f58;
+  /* Order and product states */
+  --color-ok: #46613f;
+  --color-ok-soft: #e8eee4;
+  --color-warn: #7a5a1e;
+  --color-warn-soft: #f7efdc;
+  --color-info: #3f5f7a;
+  --color-info-soft: #e8eef4;
+}
+
+:root {
+  color-scheme: light;
+  /* Homepage washes, taken from the bags' palette */
+  --wash-lavender: rgb(205 186 232 / 0.55);
+  --wash-peach: rgb(247 200 176 / 0.5);
+  --wash-sage: rgb(193 212 186 / 0.55);
+  --wash-butter: rgb(246 229 167 / 0.5);
+  --yarn: #b9a3d8;
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b2927' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6.5 9.5 5.5 5.5 5.5-5.5'/%3E%3C/svg%3E");
+  --stitches: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16' fill='none' stroke='%232b2927' stroke-opacity='0.045' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M5 4.5c1.2 3.6 2.4 5.6 4 7 1.6-1.4 2.8-3.4 4-7'/%3E%3C/svg%3E");
+}
+
+/* Dark palette: warm charcoal, same roles. Chosen in the theme switch, or "Auto" follows the device. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --color-paper: #161412;
+  --color-surface: #1e1b19;
+  --color-canvas: #121010;
+  --color-cream: #24201d;
+  --color-sand: #2d2925;
+  --color-line: #36302b;
+  --color-ink: #f0ebe4;
+  --color-ink-2: #c3bbb1;
+  --color-muted: #8d857b;
+  --color-clay: #e08d74;
+  --color-clay-soft: #3a231d;
+  --color-moss: #a3b897;
+  --color-ok: #a9c69b;
+  --color-ok-soft: #1f2b1c;
+  --color-warn: #e7c27c;
+  --color-warn-soft: #352a17;
+  --color-info: #a3c0db;
+  --color-info-soft: #1c2632;
+  --wash-lavender: rgb(150 120 200 / 0.22);
+  --wash-peach: rgb(220 140 110 / 0.16);
+  --wash-sage: rgb(130 165 120 / 0.16);
+  --wash-butter: rgb(220 190 100 / 0.12);
+  --yarn: #7f6aa3;
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f0ebe4' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6.5 9.5 5.5 5.5 5.5-5.5'/%3E%3C/svg%3E");
+  --stitches: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16' fill='none' stroke='%23f0ebe4' stroke-opacity='0.035' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M5 4.5c1.2 3.6 2.4 5.6 4 7 1.6-1.4 2.8-3.4 4-7'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] {
+    color-scheme: dark;
+    --color-paper: #161412;
+    --color-surface: #1e1b19;
+    --color-canvas: #121010;
+    --color-cream: #24201d;
+    --color-sand: #2d2925;
+    --color-line: #36302b;
+    --color-ink: #f0ebe4;
+    --color-ink-2: #c3bbb1;
+    --color-muted: #8d857b;
+    --color-clay: #e08d74;
+    --color-clay-soft: #3a231d;
+    --color-moss: #a3b897;
+    --color-ok: #a9c69b;
+    --color-ok-soft: #1f2b1c;
+    --color-warn: #e7c27c;
+    --color-warn-soft: #352a17;
+    --color-info: #a3c0db;
+    --color-info-soft: #1c2632;
+    --wash-lavender: rgb(150 120 200 / 0.22);
+    --wash-peach: rgb(220 140 110 / 0.16);
+    --wash-sage: rgb(130 165 120 / 0.16);
+    --wash-butter: rgb(220 190 100 / 0.12);
+    --yarn: #7f6aa3;
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f0ebe4' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6.5 9.5 5.5 5.5 5.5-5.5'/%3E%3C/svg%3E");
+    --stitches: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16' fill='none' stroke='%23f0ebe4' stroke-opacity='0.035' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M5 4.5c1.2 3.6 2.4 5.6 4 7 1.6-1.4 2.8-3.4 4-7'/%3E%3C/svg%3E");
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.25s ease;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-clay) 25%, transparent);
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-[11px] tracking-[0.22em] uppercase;
+  }
+
+  .btn-primary {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-[2px] bg-ink px-6 text-[13px] tracking-[0.04em] text-paper transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:bg-sand disabled:text-muted;
+  }
+  .btn-secondary {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-[2px] border border-ink/80 bg-transparent px-6 text-[13px] tracking-[0.04em] text-ink transition-colors hover:bg-ink hover:text-paper disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .link-underline {
+    @apply underline decoration-ink/35 underline-offset-4 transition-colors hover:decoration-ink;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-[12px] text-ink-2;
+  }
+  .field {
+    @apply block h-11 w-full rounded-[2px] border border-line bg-surface px-3 text-[14px] text-ink transition-colors outline-none placeholder:text-muted/70 focus:border-ink disabled:bg-cream disabled:text-muted aria-[invalid=true]:border-clay;
+  }
+  textarea.field {
+    @apply h-auto py-2.5 leading-relaxed;
+  }
+  select.field {
+    @apply appearance-none bg-[length:14px] bg-[right_12px_center] bg-no-repeat pr-9;
+    background-image: var(--select-arrow);
+  }
+  .field-error {
+    @apply mt-1.5 text-[12px] text-clay;
+  }
+
+  .prose-rivhe {
+    @apply text-[15px] leading-[1.85] text-ink-2;
+  }
+  .prose-rivhe h2 {
+    @apply mt-10 mb-3 font-serif text-[26px] leading-tight font-medium text-ink;
+  }
+  .prose-rivhe h3 {
+    @apply mt-8 mb-2 text-[12px] tracking-[0.2em] text-ink uppercase;
+  }
+  .prose-rivhe p {
+    @apply my-4;
+  }
+  .prose-rivhe ul {
+    @apply my-4 list-disc space-y-1.5 pl-5 marker:text-muted;
+  }
+  .prose-rivhe ol {
+    @apply my-4 list-decimal space-y-1.5 pl-5 marker:text-muted;
+  }
+  .prose-rivhe a {
+    @apply text-ink underline decoration-ink/35 underline-offset-4 hover:decoration-ink;
+  }
+  .prose-rivhe strong {
+    @apply font-medium text-ink;
+  }
+  .prose-rivhe > :first-child {
+    @apply mt-0;
+  }
+
+  /* Faint rows of knit "v" stitches, used behind the homepage. */
+  .stitch-texture {
+    background-image: var(--stitches);
+    background-size: 18px 16px;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Header light/dark toggle: a moon in light mode, a sun in dark mode. */
+.theme-icon-dark {
+  display: none;
+}
+html[data-theme="dark"] .theme-icon-light {
+  display: none;
+}
+html[data-theme="dark"] .theme-icon-dark {
+  display: block;
+}
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] .theme-icon-light {
+    display: none;
+  }
+  html[data-theme="system"] .theme-icon-dark {
+    display: block;
+  }
+}
+
+/* Image zoom lightbox (yet-another-react-lightbox), restyled to the site palette. */
+.yarl__root {
+  --yarl__color_backdrop: var(--color-paper);
+  --yarl__color_button: var(--color-ink);
+  --yarl__color_button_active: var(--color-ink);
+  --yarl__color_button_disabled: color-mix(in oklab, var(--color-ink) 30%, transparent);
+  --yarl__button_filter: none;
+}
