@@ -39,6 +39,8 @@ type Props = {
 type Step = "address" | "shipping" | "payment" | "review";
 const STEPS: Step[] = ["address", "shipping", "payment", "review"];
 const STORAGE_KEY = "rivhe_checkout";
+// Quotes are signed for 2 hours on the server; drop saved ones a little before that.
+const QUOTE_MAX_AGE_MS = 100 * 60 * 1000;
 
 const stepUrl = (step: Step) => (step === "address" ? "/checkout" : `/checkout?step=${step}`);
 
@@ -53,6 +55,7 @@ export function CheckoutFlow({ items, currency, bank, paymentSuffix, reservation
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // The USD→IDR rate locked into the shipping quote; the order is charged at exactly this rate.
   const [lockedRate, setLockedRate] = useState<number | null>(null);
+  const [quotedAt, setQuotedAt] = useState<number | null>(null);
   const [restored, setRestored] = useState(false);
   const [message, setMessage] = useState<{ text: string; unavailable?: boolean } | null>(null);
   const [pending, startTransition] = useTransition();
@@ -63,10 +66,11 @@ export function CheckoutFlow({ items, currency, bank, paymentSuffix, reservation
     try {
       const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "null");
       if (saved?.address) setAddress({ ...EMPTY_ADDRESS, ...saved.address });
-      if (saved?.cartKey === cartKey && saved.lockedRate > 0) {
+      if (saved?.cartKey === cartKey && saved.lockedRate > 0 && Date.now() - (saved.quotedAt ?? 0) < QUOTE_MAX_AGE_MS) {
         setOptions(saved.options ?? null);
         setSelectedId(saved.selectedId ?? null);
         setLockedRate(saved.lockedRate);
+        setQuotedAt(saved.quotedAt);
       }
     } catch {
       // Storage unavailable (private mode): start fresh.
@@ -77,11 +81,11 @@ export function CheckoutFlow({ items, currency, bank, paymentSuffix, reservation
   useEffect(() => {
     if (!restored) return;
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ cartKey, address, options, selectedId, lockedRate }));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ cartKey, address, options, selectedId, lockedRate, quotedAt }));
     } catch {
       // Ignore: progress just won't survive a reload.
     }
-  }, [restored, cartKey, address, options, selectedId, lockedRate]);
+  }, [restored, cartKey, address, options, selectedId, lockedRate, quotedAt]);
 
   const selected = options?.find((o) => o.id === selectedId) ?? null;
 
@@ -146,6 +150,7 @@ export function CheckoutFlow({ items, currency, bank, paymentSuffix, reservation
       }
       setOptions(result.options);
       setLockedRate(result.usdRate);
+      setQuotedAt(Date.now());
       setSelectedId((current) => (result.options.some((o) => o.id === current) ? current : result.options[0].id));
       go("shipping");
     });
@@ -157,7 +162,16 @@ export function CheckoutFlow({ items, currency, bank, paymentSuffix, reservation
     startTransition(async () => {
       // On success the action redirects to the thank-you page.
       const result = await placeOrderAction({ address, quoteToken: selected.token });
-      if (result && !result.ok) setMessage({ text: result.error, unavailable: result.unavailable });
+      if (!result || result.ok) return;
+      if (result.requote) {
+        // The saved options carry the stale token too, so start again from the address (still filled in).
+        setOptions(null);
+        setSelectedId(null);
+        setLockedRate(null);
+        setQuotedAt(null);
+        go("address");
+      }
+      setMessage({ text: result.error, unavailable: result.unavailable });
     });
   };
 

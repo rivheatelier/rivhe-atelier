@@ -209,19 +209,18 @@ export async function adminSaveProduct(input: ProductInput, id?: string): Promis
           sold_at: input.status === "sold" ? new Date().toISOString() : null,
         };
 
-  const { data, error } = await db()
-    .from("products")
-    .update({ ...values, ...statusChange })
-    .eq("id", id)
-    .select("*")
-    .single();
+  let query = db().from("products").update({ ...values, ...statusChange }).eq("id", id);
+  // Only change the status if no buyer reserved the piece since it was read above.
+  if ("status" in statusChange) query = query.eq("status", current.status);
+  const { data, error } = await query.select("*");
   if (error) throw new Error(error.code === "23505" ? "SLUG_TAKEN" : error.message);
-  return toProduct(data as ProductRow);
+  if (!data?.length) throw new Error("STATUS_CHANGED");
+  return toProduct(data[0] as ProductRow);
 }
 
 export async function adminDeleteProduct(id: string): Promise<void> {
-  const current = await adminGetProduct(id);
-  if (current?.status === "reserved") throw new Error("RESERVED");
-  const { error } = await db().from("products").delete().eq("id", id);
+  // The status condition is part of the delete, so a checkout reserving the piece at the same moment wins.
+  const { data, error } = await db().from("products").delete().eq("id", id).neq("status", "reserved").select("id");
   if (error) throw new Error(error.message);
+  if (!data?.length && (await adminGetProduct(id))) throw new Error("RESERVED");
 }

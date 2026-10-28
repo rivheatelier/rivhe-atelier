@@ -114,9 +114,12 @@ export async function loadSettings(): Promise<Settings> {
 
 export const getSettings = cache(loadSettings);
 
+/**
+ * Merges the patch into the stored settings in one database statement, so the background
+ * exchange-rate refresh and an admin saving another section can't undo each other's changes.
+ */
 export async function updateSettings(patch: Partial<Settings>): Promise<Settings> {
-  const next = mergeSettings({ ...(await loadSettings()), ...patch });
-  const { error } = await db().from("settings").upsert({ key: "store", value: next });
+  const { data, error } = await db().rpc("merge_settings", { p_key: "store", p_patch: patch });
   if (error) throw new Error(error.message);
-  return next;
+  return mergeSettings(data);
 }

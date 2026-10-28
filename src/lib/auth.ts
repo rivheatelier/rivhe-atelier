@@ -1,18 +1,10 @@
 import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { isAdminEmail } from "@/lib/admin-emails";
 import { createAuthClient } from "@/lib/supabase/server";
 
-export function adminEmails(): string[] {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean);
-}
-
-export function isAdminEmail(email: string | null | undefined): boolean {
-  return !!email && adminEmails().includes(email.toLowerCase());
-}
+export { adminEmails, isAdminEmail } from "@/lib/admin-emails";
 
 export type AdminUser = { id: string; email: string };
 
@@ -23,7 +15,10 @@ export const getAdminUser = cache(async (): Promise<AdminUser | null> => {
   return { id: data.user.id, email: data.user.email };
 });
 
-/** Call at the top of every admin page and Server Action. */
+/**
+ * Call at the top of every admin page and Server Action. A check in the admin layout
+ * alone isn't enough: layouts aren't re-rendered on every navigation.
+ */
 export async function requireAdmin(): Promise<AdminUser> {
   const user = await getAdminUser();
   if (!user) redirect("/admin/login");

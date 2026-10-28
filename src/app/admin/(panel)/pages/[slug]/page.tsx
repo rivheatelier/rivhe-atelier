@@ -5,6 +5,7 @@ import { resetPageAction, savePageAction } from "@/app/admin/actions";
 import { ActionForm, Field } from "@/components/admin/action-form";
 import { BackLink, Banner, Card, PageTitle } from "@/components/admin/ui";
 import { IconExternal } from "@/components/icons";
+import { requireAdmin } from "@/lib/auth";
 import { getPage } from "@/lib/pages";
 
 export const metadata: Metadata = { title: "Edit page" };
@@ -12,6 +13,7 @@ export const metadata: Metadata = { title: "Edit page" };
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ reset?: string }> };
 
 export default async function EditPagePage({ params, searchParams }: Props) {
+  await requireAdmin();
   const [{ slug }, { reset }] = await Promise.all([params, searchParams]);
   const page = await getPage(slug);
   if (!page) notFound();

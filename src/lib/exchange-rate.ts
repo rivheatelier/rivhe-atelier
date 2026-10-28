@@ -33,6 +33,15 @@ const SOURCES: { name: string; url: string; read: (json: unknown) => unknown }[]
 
 const TTL_MS = 10 * 60 * 1000;
 let latest: { rate: number; source: string; at: number } | null = null;
+// Requests arriving together while the rate is stale share one lookup.
+let inflight: Promise<{ rate: number; source: string } | null> | null = null;
+
+function fetchLiveRateOnce(): Promise<{ rate: number; source: string } | null> {
+  inflight ??= fetchLiveRate().finally(() => {
+    inflight = null;
+  });
+  return inflight;
+}
 
 async function fetchLiveRate(): Promise<{ rate: number; source: string } | null> {
   for (const source of SOURCES) {
@@ -58,7 +67,7 @@ export const getUsdRate = cache(async (): Promise<UsdRate> => {
     return { rate: latest.rate, source: latest.source, live: true, updatedAt: new Date(latest.at).toISOString() };
   }
 
-  const [live, settings] = await Promise.all([fetchLiveRate(), getSettings()]);
+  const [live, settings] = await Promise.all([fetchLiveRateOnce(), getSettings()]);
   if (live) {
     latest = { ...live, at: Date.now() };
     const storedAt = settings.usdRateUpdatedAt ? new Date(settings.usdRateUpdatedAt).getTime() : 0;

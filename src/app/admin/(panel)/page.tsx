@@ -3,6 +3,7 @@ import { Card, OrderRow } from "@/components/admin/ui";
 import { IconAlert, IconChevronRight, IconPlus } from "@/components/icons";
 import { formatIDR } from "@/lib/currency";
 import { emailProvider } from "@/lib/email";
+import { requireAdmin } from "@/lib/auth";
 import { countOrders, listOrders, paidOrdersSince } from "@/lib/orders";
 import { adminCountProducts, releaseExpiredOrders } from "@/lib/products";
 import { getSettings, PLACEHOLDER_BANK_NUMBER } from "@/lib/settings";
@@ -17,6 +18,7 @@ function jakartaNow() {
 }
 
 export default async function AdminDashboard() {
+  await requireAdmin();
   await releaseExpiredOrders();
   const now = jakartaNow();
   const monthStart = new Date(`${now.year}-${now.month}-01T00:00:00+07:00`).toISOString();

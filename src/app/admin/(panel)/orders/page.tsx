@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { OrderRow, PageTitle } from "@/components/admin/ui";
+import { requireAdmin } from "@/lib/auth";
 import { listOrders, type OrderStatus } from "@/lib/orders";
 import { releaseExpiredOrders } from "@/lib/products";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ const TABS: { key: string; label: string; statuses?: OrderStatus[] }[] = [
 ];
 
 export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  await requireAdmin();
   const { status } = await searchParams;
   const tab = TABS.find((t) => t.key === status) ?? TABS[0];
   await releaseExpiredOrders();

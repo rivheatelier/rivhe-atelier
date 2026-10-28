@@ -12,7 +12,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return new Response(html, {
     headers: {
       "content-type": "text/html; charset=utf-8",
-      "content-security-policy": "default-src 'none'; img-src * data:; style-src 'unsafe-inline'",
+      // Buyer-supplied text is escaped in every template; the sandbox is a second wall.
+      // next.config.ts sends the same policy for this path, which takes precedence.
+      "content-security-policy": "default-src 'none'; img-src * data:; style-src 'unsafe-inline'; frame-ancestors 'none'; sandbox",
       "cache-control": "private, no-store",
     },
   });

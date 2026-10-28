@@ -154,6 +154,14 @@ export function orderUsdTotal(order: Order): number {
   return Math.round((items + order.shippingCost / rate) * 100) / 100;
 }
 
+/**
+ * Expired orders are released lazily, in parallel with page rendering, so a page can still
+ * read "pending_payment" just after the deadline. Show those as expired to the buyer.
+ */
+export function displayStatus(order: Order, now = Date.now()): OrderStatus {
+  return order.status === "pending_payment" && new Date(order.expiresAt).getTime() <= now ? "expired" : order.status;
+}
+
 const WITH_ITEMS = "*, order_items(*)";
 
 /** Accepts "RIVHE1001", "#rivhe1001" or just "1001". */
@@ -284,9 +292,11 @@ export async function confirmPayment(orderId: string): Promise<void> {
   if (error) throw orderError(error.message);
 }
 
-export async function cancelOrder(orderId: string, restock: boolean): Promise<void> {
-  const { error } = await db().rpc("cancel_order", { p_order_id: orderId, p_restock: restock });
+/** Returns the status the order had at the moment it was cancelled. */
+export async function cancelOrder(orderId: string, restock: boolean): Promise<{ previousStatus: OrderStatus }> {
+  const { data, error } = await db().rpc("cancel_order", { p_order_id: orderId, p_restock: restock });
   if (error) throw orderError(error.message);
+  return { previousStatus: (data as { previous_status: OrderStatus }).previous_status };
 }
 
 async function transition(orderId: string, from: OrderStatus, values: Record<string, unknown>): Promise<void> {

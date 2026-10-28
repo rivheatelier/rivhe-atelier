@@ -24,7 +24,7 @@ export async function getShippingOptions(
   const apiKey = process.env.BITESHIP_API_KEY;
   if (apiKey) {
     try {
-      const options = await biteshipRates(apiKey, input, settings);
+      const options = await cachedBiteshipRates(apiKey, input, settings);
       if (options.length > 0) return { options, source: "biteship" };
     } catch (error) {
       console.error("[shipping] Biteship failed, falling back to estimates:", error);
@@ -45,6 +45,22 @@ type BiteshipPricing = {
   shipment_duration_unit?: string;
   price?: number;
 };
+
+// Biteship charges per rates request. Repeat quotes for the same route and weight (a buyer
+// going back and forth, or someone hammering the checkout) are answered from memory.
+const RATE_CACHE_MS = 30 * 60 * 1000;
+const RATE_CACHE_MAX = 300;
+const rateCache = new Map<string, { at: number; options: ShippingOption[] }>();
+
+async function cachedBiteshipRates(apiKey: string, input: QuoteInput, settings: Settings): Promise<ShippingOption[]> {
+  const key = [settings.originPostalCode, input.postalCode, input.weightGrams, settings.couriers].join("|");
+  const hit = rateCache.get(key);
+  if (hit && Date.now() - hit.at < RATE_CACHE_MS) return hit.options;
+  const options = await biteshipRates(apiKey, input, settings);
+  if (rateCache.size >= RATE_CACHE_MAX) rateCache.delete(rateCache.keys().next().value as string);
+  rateCache.set(key, { at: Date.now(), options });
+  return options;
+}
 
 async function biteshipRates(apiKey: string, input: QuoteInput, settings: Settings): Promise<ShippingOption[]> {
   const res = await fetch("https://api.biteship.com/v1/rates/couriers", {

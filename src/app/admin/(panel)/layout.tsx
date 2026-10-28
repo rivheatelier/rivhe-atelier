@@ -25,7 +25,11 @@ export default async function AdminPanelLayout({ children }: { children: React.R
           </Link>
           <AdminSideNav attention={attention} />
           <div className="mt-auto space-y-3 border-t border-line px-3 pt-5 text-[13px] text-ink-2">
-            <ThemeSwitch initial={theme} labels />
+            {/* Icons only: the labelled switch is wider than the sidebar (it lives in Settings → Appearance). */}
+            <div className="flex items-center justify-between gap-3">
+              <span>Theme</span>
+              <ThemeSwitch initial={theme} />
+            </div>
             <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-ink">
               <IconExternal className="h-4 w-4" /> View store
             </a>

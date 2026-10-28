@@ -69,7 +69,8 @@ export async function quoteShippingAction(input: { country: string; postalCode: 
   };
 }
 
-export type PlaceOrderResult = { ok: false; error: string; unavailable?: boolean };
+/** `requote`: the shipping quote expired or no longer matches the address/cart, so a fresh one is needed. */
+export type PlaceOrderResult = { ok: false; error: string; unavailable?: boolean; requote?: boolean };
 
 /** Re-validates everything on the server, reserves the pieces atomically, then redirects to the thank-you page. */
 export async function placeOrderAction(input: { address: Partial<AddressInput>; quoteToken: string }): Promise<PlaceOrderResult> {
@@ -87,7 +88,9 @@ export async function placeOrderAction(input: { address: Partial<AddressInput>; 
     postalCode: address.postalCode,
     cartIds: cart.purchasable.map((p) => p.id),
   });
-  if (!quote) return { ok: false, error: "Your shipping quote has expired. Please choose a shipping method again." };
+  if (!quote) {
+    return { ok: false, requote: true, error: "Your shipping quote has expired. Check your address and continue to get an updated one." };
+  }
 
   let order: { id: string; code: string; accessToken: string };
   try {

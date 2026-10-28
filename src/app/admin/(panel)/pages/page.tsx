@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageTitle } from "@/components/admin/ui";
 import { IconChevronRight } from "@/components/icons";
+import { requireAdmin } from "@/lib/auth";
 import { EDITABLE_PAGES, getPage } from "@/lib/pages";
 import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Pages" };
 
 export default async function AdminPagesPage() {
+  await requireAdmin();
   const pages = await Promise.all(EDITABLE_PAGES.map((slug) => getPage(slug)));
 
   return (

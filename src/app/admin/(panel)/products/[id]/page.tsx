@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { DeleteProduct, ProductForm } from "@/components/admin/product-form";
 import { BackLink, Banner, PageTitle, ProductBadge } from "@/components/admin/ui";
 import { IconExternal } from "@/components/icons";
+import { requireAdmin } from "@/lib/auth";
 import { getOrderById } from "@/lib/orders";
 import { getUsdRate } from "@/lib/exchange-rate";
 import { adminGetProduct, adminListProducts } from "@/lib/products";
@@ -15,6 +16,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> };
 
 export default async function EditProductPage({ params, searchParams }: Props) {
+  await requireAdmin();
   const [{ id }, { saved }] = await Promise.all([params, searchParams]);
   if (!UUID.test(id)) notFound();
   const [product, all, { rate: usdRate }] = await Promise.all([adminGetProduct(id), adminListProducts(), getUsdRate()]);

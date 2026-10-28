@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { PaymentDetails } from "@/components/payment-details";
 import { countryName } from "@/lib/countries";
 import { formatIDR, formatUSD } from "@/lib/currency";
-import { getOrderForCustomer, ORDER_STATUS_LABEL, orderUsdTotal, type Order } from "@/lib/orders";
+import { displayStatus, getOrderForCustomer, ORDER_STATUS_LABEL, orderUsdTotal, type Order, type OrderStatus } from "@/lib/orders";
 import { getSettings } from "@/lib/settings";
 import { cn, formatDateTime, whatsappLink } from "@/lib/utils";
 
@@ -25,7 +25,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const [order, settings] = await Promise.all([getOrderForCustomer(code, t), getSettings()]);
   if (!order) notFound();
 
-  const closed = order.status === "expired" || order.status === "cancelled";
+  const status = displayStatus(order);
+  const closed = status === "expired" || status === "cancelled";
   const contact = settings.whatsapp
     ? { href: whatsappLink(settings.whatsapp, `Hi RIVHÉ, about my order #${order.code}`), label: "WhatsApp us" }
     : settings.contactEmail
@@ -35,7 +36,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   return (
     <div className="mx-auto max-w-2xl px-5 pt-10 sm:px-8 lg:pt-14">
       <p className="eyebrow text-muted">Order #{order.code}</p>
-      <h1 className="mt-2 font-serif text-[34px] leading-tight">{headline(order)}</h1>
+      <h1 className="mt-2 font-serif text-[34px] leading-tight">{headline(status)}</h1>
       <p className="mt-2 text-[13px] text-muted">Placed {formatDateTime(order.createdAt)}</p>
 
       {!closed && (
@@ -54,7 +55,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
         </ol>
       )}
 
-      {order.status === "pending_payment" && (
+      {status === "pending_payment" && (
         <section className="mt-9 rounded-[2px] border border-line bg-surface p-5">
           <p className="eyebrow mb-4">Complete your payment</p>
           <PaymentDetails
@@ -68,7 +69,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
         </section>
       )}
 
-      {order.status === "shipped" && order.trackingNumber && (
+      {status === "shipped" && order.trackingNumber && (
         <section className="mt-9 rounded-[2px] bg-cream/70 p-5 text-[14px] text-ink-2">
           <p className="eyebrow mb-3 text-ink">Tracking</p>
           <p>
@@ -79,7 +80,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
       {closed && (
         <p className="mt-8 rounded-[2px] bg-clay-soft px-4 py-3 text-[13px] leading-relaxed text-clay">
-          {order.status === "expired"
+          {status === "expired"
             ? "We didn’t receive the payment in time, so this order was cancelled and its pieces returned to the shop. If you have already transferred, please contact us."
             : "This order has been cancelled. If you have questions, please contact us."}
         </p>
@@ -137,7 +138,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
         </div>
         <div className="rounded-[2px] border border-line bg-surface p-4">
           <p className="eyebrow mb-2 text-ink">Status</p>
-          {ORDER_STATUS_LABEL[order.status]}
+          {ORDER_STATUS_LABEL[status]}
           <br />
           {order.shippingService}
           {order.shippingEta && ` · ${order.shippingEta}`}
@@ -154,8 +155,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
   );
 }
 
-function headline(order: Order): string {
-  switch (order.status) {
+function headline(status: OrderStatus): string {
+  switch (status) {
     case "pending_payment":
       return "Awaiting your transfer";
     case "paid":

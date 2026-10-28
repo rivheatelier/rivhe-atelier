@@ -27,6 +27,34 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["nodemailer"],
   turbopack: { root: path.resolve(__dirname) },
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          // No other site may frame these pages (clickjacking), and no plugins or foreign form targets.
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          // Order links carry a secret token: other sites only ever see our origin.
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+        ],
+      },
+      {
+        // Stored emails shown in the admin: no scripts or forms, sandboxed. Listed last so this
+        // replaces the policy above (headers set by the route handler itself would be overridden).
+        source: "/admin/emails/:id",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; img-src * data:; style-src 'unsafe-inline'; frame-ancestors 'none'; sandbox",
+          },
+        ],
+      },
+    ];
+  },
   experimental: {
     serverActions: {
       // Testing on a phone through a VS Code dev tunnel: the tunnel rewrites Origin to

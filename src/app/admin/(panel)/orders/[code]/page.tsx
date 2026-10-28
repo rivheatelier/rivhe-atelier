@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { OrderActions, OrderNote } from "@/components/admin/order-actions";
 import { BackLink, Card, OrderBadge } from "@/components/admin/ui";
 import { CopyButton } from "@/components/copy-button";
+import { requireAdmin } from "@/lib/auth";
 import { countryName } from "@/lib/countries";
 import { formatIDR, formatUSD } from "@/lib/currency";
 import { getOrderByCode, listOrderEmails, orderUsdTotal } from "@/lib/orders";
@@ -28,6 +29,7 @@ const EMAIL_LABEL: Record<string, string> = {
 };
 
 export default async function AdminOrderPage({ params }: { params: Params }) {
+  await requireAdmin();
   const { code } = await params;
   await releaseExpiredOrders();
   const order = await getOrderByCode(code);

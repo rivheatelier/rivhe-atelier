@@ -63,7 +63,7 @@ export function ProductForm({ product, categories, usdRate }: { product?: Produc
             name="priceUsd"
             inputMode="decimal"
             value={usd}
-            onChange={(e) => setUsd(e.target.value.replace(/[^\d.]/g, ""))}
+            onChange={(e) => setUsd(e.target.value.replace(",", ".").replace(/[^\d.]/g, ""))}
             required
             placeholder="45"
             className="field"

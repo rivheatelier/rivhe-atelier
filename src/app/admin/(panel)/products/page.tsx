@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Banner, PageTitle, ProductBadge } from "@/components/admin/ui";
 import { IconPlus } from "@/components/icons";
+import { requireAdmin } from "@/lib/auth";
 import { formatIDR, formatUSD, idrFromUsd } from "@/lib/currency";
 import { getUsdRate } from "@/lib/exchange-rate";
 import { adminCountProducts, adminListProducts, releaseExpiredOrders, type ProductStatus } from "@/lib/products";
@@ -19,6 +20,7 @@ const TABS: { key: ProductStatus | "all"; label: string }[] = [
 ];
 
 export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ status?: string; deleted?: string }> }) {
+  await requireAdmin();
   const params = await searchParams;
   const tab = TABS.find((t) => t.key === params.status) ?? TABS[0];
   await releaseExpiredOrders();

@@ -44,6 +44,29 @@ export async function POST(request: Request) {
     const amount = Math.round(Number(mutation.amount));
     if (!Number.isFinite(amount) || amount <= 0) continue;
 
+    // Record the mutation before matching it. If Moota delivers it again, the unique
+    // mutation id stops it from confirming a second order with the same amount.
+    const { data: event, error: claimError } = await db()
+      .from("payment_events")
+      .insert({
+        source: "moota",
+        external_id: mutation.mutation_id ? String(mutation.mutation_id) : null,
+        amount,
+        description: String(mutation.description ?? "").slice(0, 500),
+        status: "unmatched",
+        raw: mutation,
+      })
+      .select("id")
+      .single();
+    if (claimError) {
+      if (claimError.code === "23505") {
+        results.push({ amount, status: "duplicate" });
+        continue;
+      }
+      console.error("[moota] could not record mutation:", claimError.message);
+      return new Response("Could not record the mutation", { status: 500 });
+    }
+
     const candidates = await pendingOrdersWithAmount(amount);
     let status: "matched" | "unmatched" | "ambiguous" = candidates.length === 1 ? "matched" : candidates.length > 1 ? "ambiguous" : "unmatched";
     let matchedOrderId: string | null = null;
@@ -59,16 +82,9 @@ export async function POST(request: Request) {
       }
     }
 
-    await db()
-      .from("payment_events")
-      .insert({
-        source: "moota",
-        amount,
-        description: String(mutation.description ?? "").slice(0, 500),
-        status,
-        matched_order_id: matchedOrderId,
-        raw: mutation,
-      });
+    if (status !== "unmatched") {
+      await db().from("payment_events").update({ status, matched_order_id: matchedOrderId }).eq("id", event.id);
+    }
     results.push({ amount, status, order: status === "matched" ? candidates[0].code : undefined });
   }
 

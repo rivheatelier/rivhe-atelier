@@ -12,7 +12,6 @@ import { notifyCancelled, notifyPaymentConfirmed, notifyShipped } from "@/lib/no
 import {
   cancelOrder,
   confirmPayment,
-  getOrderById,
   markCompleted,
   markShipped,
   OrderError,
@@ -59,7 +58,13 @@ export async function loginAction(_prev: ActionResult, formData: FormData): Prom
 
   const supabase = await createAuthClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return fail("Incorrect email or password.");
+  if (error) {
+    // Supabase only reports these after checking the password, so they don't reveal which emails exist.
+    if (error.code === "email_not_confirmed") return fail("This account isn’t confirmed yet. Confirm it in Supabase → Authentication → Users.");
+    if (error.status === 429) return fail("Too many sign-in attempts. Wait a few minutes, then try again.");
+    if (error.code !== "invalid_credentials") console.error("[admin] sign-in failed:", error.code, error.message);
+    return fail("Incorrect email or password.");
+  }
   if (!isAdminEmail(email)) {
     await supabase.auth.signOut();
     return fail("This account isn’t on the admin list. Add the email to ADMIN_EMAILS.");
@@ -101,7 +106,8 @@ export async function saveProductAction(_prev: ActionResult, formData: FormData)
   const id = String(formData.get("id") ?? "") || undefined;
   const name = String(formData.get("name") ?? "").trim().slice(0, 160);
   const slug = slugify(String(formData.get("slug") ?? "") || name);
-  const priceUsd = Math.round(Number(String(formData.get("priceUsd") ?? "").replace(/[^\d.]/g, "")) * 100) / 100;
+  // "45,50" is how a price is often typed in Indonesia: treat the comma as the decimal point.
+  const priceUsd = Math.round(Number(String(formData.get("priceUsd") ?? "").replace(",", ".").replace(/[^\d.]/g, "")) * 100) / 100;
   const weightGrams = Math.round(Number(formData.get("weightGrams") ?? 0));
   const status = String(formData.get("status") ?? "draft") as ProductInput["status"];
   const images = parseImageList(formData.get("images"), 12);
@@ -132,6 +138,9 @@ export async function saveProductAction(_prev: ActionResult, formData: FormData)
     savedId = saved.id;
   } catch (error) {
     if (error instanceof Error && error.message === "SLUG_TAKEN") return fail("Another piece already uses this URL. Change the URL field.");
+    if (error instanceof Error && error.message === "STATUS_CHANGED") {
+      return fail("A buyer has just reserved this piece, so its status can’t be changed now. Reload the page.");
+    }
     return fail(error instanceof Error ? error.message : "Couldn’t save.");
   }
 
@@ -199,13 +208,13 @@ export async function markCompletedAction(orderId: string): Promise<ActionResult
 
 export async function cancelOrderAction(orderId: string, options: { restock: boolean; notify: boolean }): Promise<ActionResult> {
   await requireAdmin();
-  const before = await getOrderById(orderId);
+  let previousStatus: string;
   try {
-    await cancelOrder(orderId, options.restock);
+    ({ previousStatus } = await cancelOrder(orderId, options.restock));
   } catch (error) {
     return fail(orderErrorMessage(error));
   }
-  if (options.notify) after(() => notifyCancelled(orderId, before?.status === "paid"));
+  if (options.notify) after(() => notifyCancelled(orderId, previousStatus === "paid"));
   refreshEverywhere();
   return done("Order cancelled.");
 }
@@ -247,7 +256,11 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export async function saveSettingsAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   await requireAdmin();
   const text = (key: string, max = 300) => String(formData.get(key) ?? "").trim().slice(0, max);
-  const int = (key: string) => Math.round(Number(String(formData.get(key) ?? "").replace(/[^\d.-]/g, "")));
+  // Digits only: "450.000" (Indonesian thousands separator) must read as 450000, not 450.
+  const int = (key: string) => {
+    const digits = String(formData.get(key) ?? "").replace(/\D/g, "");
+    return digits ? Number(digits) : Number.NaN;
+  };
   const checked = (key: string) => formData.get(key) === "on";
 
   let patch: Partial<Settings>;
