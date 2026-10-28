@@ -5,7 +5,7 @@ import { deleteProductAction, saveProductAction } from "@/app/admin/actions";
 import { Field } from "@/components/admin/action-form";
 import { ImageManager } from "@/components/admin/image-manager";
 import { useFormAction } from "@/components/use-form-action";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, isCategoryLabel } from "@/lib/categories";
 import { formatIDR, idrFromUsd } from "@/lib/currency";
 import type { Product } from "@/lib/products";
 import { cn, slugify } from "@/lib/utils";
@@ -75,7 +75,17 @@ export function ProductForm({ product, usdRate }: { product?: Product; usdRate: 
             <input id="p-weight" name="weightGrams" type="number" min={1} defaultValue={product?.weightGrams ?? 500} className="field" />
           </Field>
           <Field label="Category" htmlFor="p-category">
-            <select id="p-category" name="category" defaultValue={product?.category || CATEGORIES[0].label} className="field">
+            {/* A new piece starts with no category, so it can't be saved under Bags by accident. */}
+            <select
+              id="p-category"
+              name="category"
+              required
+              defaultValue={product && isCategoryLabel(product.category) ? product.category : ""}
+              className="field"
+            >
+              <option value="" disabled>
+                Choose…
+              </option>
               {CATEGORIES.map((c) => (
                 <option key={c.slug} value={c.label}>
                   {c.label}

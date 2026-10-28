@@ -44,7 +44,8 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
         <CurrencySwitch value={currency.code} options={currency.options} className="mt-5" />
       </div>
 
-      <nav className="no-scrollbar -mx-5 mt-8 flex gap-2 overflow-x-auto px-5 sm:mx-0 sm:justify-center sm:px-0" aria-label="Filter">
+      {/* One swipeable row on phones; wider screens wrap, since a centred row that overflows can't scroll to its first chips. */}
+      <nav className="no-scrollbar -mx-5 mt-8 flex gap-2 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:justify-center sm:px-0" aria-label="Filter">
         {filters.map((f) => (
           <Link
             key={f.href}
