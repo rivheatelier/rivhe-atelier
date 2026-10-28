@@ -1,4 +1,5 @@
 import "server-only";
+import { bankLogo, SWIFT_NOTE } from "@/lib/banks";
 import { countryName } from "@/lib/countries";
 import { formatIDR, formatUSD } from "@/lib/currency";
 import { orderUsdTotal, type Order } from "@/lib/orders";
@@ -103,10 +104,19 @@ function address(order: Order): string {
 }
 
 function paymentBox(order: Order, settings: Settings): string {
+  const logo = bankLogo(settings.bankName);
+  const swift = order.country !== "ID" ? settings.bankSwift : "";
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.cream}"><tr><td style="padding:18px 20px">
+${logo ? `<img src="${esc(absoluteUrl(logo.src))}" width="72" height="${Math.round((72 * logo.height) / logo.width)}" alt="" style="display:block;margin-bottom:12px;border:0">` : ""}
 <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:${C.ink2}">Bank transfer · ${esc(settings.bankName)}</div>
 <div style="margin:6px 0 2px;font-family:${SERIF};font-size:24px;letter-spacing:.5px;color:${C.ink}">${esc(settings.bankAccountNumber)}</div>
 <div style="font-size:13px;color:${C.ink2}">${esc(settings.bankAccountName)}</div>
+${
+  swift
+    ? `<div style="margin-top:10px;font-size:13px;color:${C.ink2}">SWIFT code <strong style="font-family:${SERIF};font-size:17px;font-weight:normal;letter-spacing:.5px;color:${C.ink}">${esc(swift)}</strong></div>
+<div style="margin-top:4px;font-size:12px;line-height:1.6;color:${C.ink2}">${esc(SWIFT_NOTE)}</div>`
+    : ""
+}
 <div style="height:1px;margin:14px 0;background:${C.line}"></div>
 <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:${C.clay}">Transfer exactly</div>
 <div style="margin-top:4px;font-family:${SERIF};font-size:28px;color:${C.ink}">${formatIDR(order.transferAmount)}</div>

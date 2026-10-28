@@ -8,6 +8,11 @@ function secret(): string {
   return createHash("sha256").update(`rivhe-sign:${base}`).digest("hex");
 }
 
+/** A key of its own for each purpose (e.g. the captcha), derived from the app secret. */
+export function deriveSecret(purpose: string): string {
+  return createHmac("sha256", secret()).update(`rivhe-${purpose}`).digest("hex");
+}
+
 export function safeEqual(a: string, b: string): boolean {
   const left = Buffer.from(a);
   const right = Buffer.from(b);

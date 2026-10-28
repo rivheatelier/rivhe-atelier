@@ -1,8 +1,10 @@
+import Image from "next/image";
 import { CopyButton } from "@/components/copy-button";
 import { IconBank } from "@/components/icons";
+import { bankLogo, SWIFT_NOTE } from "@/lib/banks";
 import { formatIDR } from "@/lib/currency";
 
-export type BankDetails = { name: string; accountNumber: string; accountName: string };
+export type BankDetails = { name: string; accountNumber: string; accountName: string; swift: string };
 
 /**
  * Bank transfer instructions: account to pay into and the exact amount, whose
@@ -14,22 +16,34 @@ export function PaymentDetails({
   amount,
   approx,
   deadline,
+  international,
 }: {
   bank: BankDetails;
   amount: number;
   /** The amount in the buyer's display currency, when it isn't IDR. */
   approx?: string;
   deadline?: string;
+  /** Shipping outside Indonesia: also show the SWIFT code for a transfer from abroad. */
+  international?: boolean;
 }) {
   const lastTwo = String(amount % 100).padStart(2, "0");
+  const logo = bankLogo(bank.name);
+  const swift = international ? bank.swift : "";
 
   return (
     <div className="space-y-4 text-left">
       <div className="rounded-[2px] border border-line bg-paper p-4">
         <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-cream text-ink-2">
-            <IconBank className="h-[18px] w-[18px]" />
-          </span>
+          {logo ? (
+            // White in both themes: the logo's navy lettering would disappear on the dark palette.
+            <span className="grid h-9 shrink-0 place-items-center rounded-[3px] border border-line bg-white px-2.5">
+              <Image src={logo.src} alt="" width={Math.round((18 * logo.width) / logo.height)} height={18} />
+            </span>
+          ) : (
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-cream text-ink-2">
+              <IconBank className="h-[18px] w-[18px]" />
+            </span>
+          )}
           <div className="min-w-0">
             <p className="text-[15px] font-medium tracking-wide text-ink">{bank.name}</p>
             <p className="truncate text-[12px] text-ink-2">{bank.accountName}</p>
@@ -42,6 +56,18 @@ export function PaymentDetails({
           </div>
           <CopyButton value={bank.accountNumber.replace(/\s+/g, "")} label="Copy account number" />
         </div>
+        {swift && (
+          <div className="mt-3 border-t border-line pt-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[11px] tracking-[0.12em] text-muted uppercase">SWIFT code</p>
+                <p className="font-serif text-[20px] leading-tight tracking-wide text-ink">{swift}</p>
+              </div>
+              <CopyButton value={swift} label="Copy SWIFT code" />
+            </div>
+            <p className="mt-2 text-[12px] leading-relaxed text-ink-2">{SWIFT_NOTE}</p>
+          </div>
+        )}
       </div>
 
       <p className="text-[13px] leading-relaxed text-ink-2">

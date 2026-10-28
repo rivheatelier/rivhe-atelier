@@ -5,6 +5,7 @@ import { deleteProductAction, saveProductAction } from "@/app/admin/actions";
 import { Field } from "@/components/admin/action-form";
 import { ImageManager } from "@/components/admin/image-manager";
 import { useFormAction } from "@/components/use-form-action";
+import { CATEGORIES } from "@/lib/categories";
 import { formatIDR, idrFromUsd } from "@/lib/currency";
 import type { Product } from "@/lib/products";
 import { cn, slugify } from "@/lib/utils";
@@ -15,7 +16,7 @@ const STATUSES = [
   { value: "sold", label: "Sold", hint: "Shown as sold" },
 ] as const;
 
-export function ProductForm({ product, categories, usdRate }: { product?: Product; categories: string[]; usdRate: number }) {
+export function ProductForm({ product, usdRate }: { product?: Product; usdRate: number }) {
   const [state, form, pending] = useFormAction(saveProductAction, { ok: false });
   const [name, setName] = useState(product?.name ?? "");
   const [slug, setSlug] = useState(product?.slug ?? "");
@@ -74,12 +75,13 @@ export function ProductForm({ product, categories, usdRate }: { product?: Produc
             <input id="p-weight" name="weightGrams" type="number" min={1} defaultValue={product?.weightGrams ?? 500} className="field" />
           </Field>
           <Field label="Category" htmlFor="p-category">
-            <input id="p-category" name="category" list="product-categories" defaultValue={product?.category ?? "Bags"} className="field" />
-            <datalist id="product-categories">
-              {categories.map((c) => (
-                <option key={c} value={c} />
+            <select id="p-category" name="category" defaultValue={product?.category || CATEGORIES[0].label} className="field">
+              {CATEGORIES.map((c) => (
+                <option key={c.slug} value={c.label}>
+                  {c.label}
+                </option>
               ))}
-            </datalist>
+            </select>
           </Field>
         </div>
         <Field label="Description" htmlFor="p-description">
@@ -91,6 +93,9 @@ export function ProductForm({ product, categories, usdRate }: { product?: Produc
             placeholder="A hand-crocheted bag in a soft palette of pastel hues…"
             className="field"
           />
+        </Field>
+        <Field label="Story" htmlFor="p-story" hint="Optional. Shown under the description: what inspired the piece, the yarn, how it was made.">
+          <textarea id="p-story" name="story" rows={4} defaultValue={product?.story ?? ""} className="field" />
         </Field>
         <Field label="Details — one per line" htmlFor="p-details" hint="Shown as bullet points. “One of a kind — once it’s gone, it’s gone” is added automatically.">
           <textarea

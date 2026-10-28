@@ -97,8 +97,18 @@ export default async function AdminSettingsPage() {
               <Field label="Account number" htmlFor="s-bankAccountNumber">
                 <input id="s-bankAccountNumber" name="bankAccountNumber" defaultValue={settings.bankAccountNumber} inputMode="numeric" className="field" />
               </Field>
-              <Field label="Account holder" htmlFor="s-bankAccountName" className="sm:col-span-2">
+              <Field label="Account holder" htmlFor="s-bankAccountName">
                 <input id="s-bankAccountName" name="bankAccountName" defaultValue={settings.bankAccountName} className="field" />
+              </Field>
+              <Field label="SWIFT code" htmlFor="s-bankSwift" hint="For buyers paying from abroad. Shown only on orders shipping outside Indonesia.">
+                <input
+                  id="s-bankSwift"
+                  name="bankSwift"
+                  defaultValue={settings.bankSwift}
+                  placeholder="BMRIIDJA"
+                  autoCapitalize="characters"
+                  className="field"
+                />
               </Field>
               <Field
                 label="Unique ending"

@@ -32,7 +32,12 @@ export default async function CheckoutPage() {
       <CheckoutFlow
         items={cart.purchasable.map((p) => ({ id: p.id, name: p.name, priceUsd: p.priceUsd, image: p.images[0] ?? null }))}
         currency={{ code: currency.code, rate: currency.rate }}
-        bank={{ name: settings.bankName, accountNumber: settings.bankAccountNumber, accountName: settings.bankAccountName }}
+        bank={{
+          name: settings.bankName,
+          accountNumber: settings.bankAccountNumber,
+          accountName: settings.bankAccountName,
+          swift: settings.bankSwift,
+        }}
         paymentSuffix={settings.paymentSuffix}
         reservationHours={settings.reservationHours}
         countries={countryList(settings.internationalShipping)}

@@ -9,19 +9,19 @@ Toko online untuk produk crochet handmade. Setiap barang hanya ada **satu per wa
 ## Fitur
 
 **Pembeli (mobile-first)**
-- Beranda dengan hero slider + tagline, *New arrivals*, katalog dengan filter & pencarian
-- Halaman produk: galeri swipe, **zoom** (hover-zoom di desktop, pinch/double-tap di HP), Details/Shipping/Care
+- Beranda dengan hero slider + tagline, *New arrivals*, katalog dengan filter & pencarian. Filter kategori selalu menampilkan kelimanya: Bags, Table Runners, Scrunchies, Tissue Box Covers, Pouches (daftar tetap di `src/lib/categories.ts`)
+- Halaman produk: galeri swipe, **zoom** (hover-zoom di desktop, pinch/double-tap di HP), deskripsi + *The story*, Details/Shipping/Care
 - **Harga dalam USD** (harga utama, diisi di admin), dengan tombol **USD | IDR**. Rupiah dihitung dari **kurs realtime** (Coinbase, cadangan open.er-api.com & currency-api, diperbarui tiap 10 menit) dan dibulatkan ke ribuan. Kurs dikunci saat pembeli memilih ongkir, jadi nominal transfer tidak berubah di tengah checkout. Pembayaran selalu transfer IDR.
 - Checkout langsung di web tanpa akun: **Alamat → Ongkir (otomatis) → Pembayaran → Review → Place Order**
-- **Transfer bank dengan 2 digit terakhir diganti `17`** (contoh: IDR 1,160,000 → **IDR 1,160,017**)
-- Halaman status pesanan dan *Track your order* (nomor order + email)
+- **Transfer bank dengan 2 digit terakhir diganti `17`** (contoh: IDR 1,160,000 → **IDR 1,160,017**). Logo bank tampil bila namanya dikenali (saat ini Mandiri). Pesanan ke luar negeri juga menampilkan **SWIFT code** dan catatan agar memilih biaya *OUR*
+- Halaman status pesanan dan *Track your order* (nomor order + email), dilindungi captcha **ALTCHA**: proof-of-work di browser, tanpa akun atau key pihak ketiga, dan tiap solusi hanya bisa dipakai sekali
 - Halaman About / Shipping & Returns / Care / Terms (bisa diedit dari admin)
 
 **Admin (`/admin`, mobile-first dengan tab bar bawah)**
 - Overview: pesanan yang menunggu transfer / perlu dikirim, omzet bulan ini, checklist setup
 - Pesanan: konfirmasi pembayaran (→ receipt otomatis ke email pembeli **dan** penjual), input resi (→ email ke pembeli), selesai, cancel, catatan pribadi, salin alamat untuk label, riwayat email
-- Produk: upload foto dari HP (otomatis di-resize), urutkan foto, harga dalam USD (pratinjau Rupiah dari kurs live), status Draft / Available / Sold
-- Halaman konten, foto beranda, rekening bank & angka unik, kurs live, ongkir (JNE/SiCepat dalam negeri; DHL Express & Aramex via Pos Indonesia untuk luar negeri), email test, ganti password
+- Produk: upload foto dari HP (otomatis di-resize), urutkan foto, harga dalam USD (pratinjau Rupiah dari kurs live), kategori, *Story*, status Draft / Available / Sold
+- Halaman konten, foto beranda, rekening bank + SWIFT code & angka unik, kurs live, ongkir (JNE/SiCepat dalam negeri; DHL Express & Aramex via Pos Indonesia untuk luar negeri), email test, ganti password
 
 ## Alur pesanan
 
@@ -97,7 +97,7 @@ npm run dev        # http://localhost:3000  ·  admin: http://localhost:3000/adm
 |---|---|---|
 | Kirim email | `RESEND_API_KEY` (verifikasi domain rivhe.com di Resend) **atau** `SMTP_URL`, plus `EMAIL_FROM` | Email tidak terkirim, hanya tersimpan & bisa dilihat di halaman order admin |
 | Ongkir live JNE/SiCepat/AnterAja/J&T | `BITESHIP_API_KEY` + kode pos asal di Settings | Ongkir dihitung dari tabel estimasi per wilayah kode pos |
-| Pencocokan transfer otomatis | `MOOTA_WEBHOOK_SECRET`, webhook Moota → `https://rivhe.com/api/webhooks/moota` | Admin menekan *Confirm payment received* setelah cek mutasi BCA |
+| Pencocokan transfer otomatis | `MOOTA_WEBHOOK_SECRET`, webhook Moota → `https://rivhe.com/api/webhooks/moota` | Admin menekan *Confirm payment received* setelah cek mutasi rekening |
 
 > Webhook Moota mengikuti format umum Moota (array mutasi, header `Signature` HMAC-SHA256). Uji dulu dengan fitur *test webhook* di Moota sebelum diandalkan.
 

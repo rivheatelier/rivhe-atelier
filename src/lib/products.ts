@@ -11,6 +11,8 @@ export type Product = {
   /** The price, in US dollars. Rupiah is derived from the live rate (see idrFromUsd). */
   priceUsd: number;
   description: string;
+  /** Shown under the description: what inspired the piece, the yarn, how it was made. */
+  story: string;
   details: string[];
   detailsText: string;
   category: string;
@@ -30,6 +32,7 @@ type ProductRow = {
   name: string;
   price_usd: number | string;
   description: string;
+  story: string;
   details: string;
   category: string;
   weight_grams: number;
@@ -49,6 +52,7 @@ export function toProduct(row: ProductRow): Product {
     name: row.name,
     priceUsd: Number(row.price_usd),
     description: row.description,
+    story: row.story,
     details: row.details
       .split("\n")
       .map((line) => line.trim())
@@ -112,13 +116,6 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
   return rows(data);
 }
 
-export async function listCategories(): Promise<string[]> {
-  const { data, error } = await db().from("products").select("category").neq("status", "draft");
-  if (error) throw new Error(error.message);
-  const names = ((data as { category: string }[] | null) ?? []).map((r) => r.category.trim()).filter(Boolean);
-  return [...new Set(names)].sort((a, b) => a.localeCompare(b));
-}
-
 export async function listRelated(product: Product, limit = 4): Promise<Product[]> {
   const { data, error } = await db()
     .from("products")
@@ -167,6 +164,7 @@ export type ProductInput = {
   slug: string;
   priceUsd: number;
   description: string;
+  story: string;
   details: string;
   category: string;
   weightGrams: number;
@@ -180,6 +178,7 @@ export async function adminSaveProduct(input: ProductInput, id?: string): Promis
     slug: input.slug,
     price_usd: input.priceUsd,
     description: input.description,
+    story: input.story,
     details: input.details,
     category: input.category,
     weight_grams: input.weightGrams,

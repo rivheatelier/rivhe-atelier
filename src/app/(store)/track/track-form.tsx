@@ -1,6 +1,7 @@
 "use client";
 
 import { trackOrderAction } from "@/app/(store)/actions";
+import { Captcha } from "@/components/captcha";
 import { useFormAction } from "@/components/use-form-action";
 
 export function TrackForm() {
@@ -20,6 +21,7 @@ export function TrackForm() {
         </label>
         <input id="track-email" name="email" type="email" required autoComplete="email" className="field" />
       </div>
+      <Captcha attempt={state} />
       {state.error && (
         <p role="alert" className="rounded-[2px] bg-clay-soft px-4 py-3 text-[13px] text-clay">
           {state.error}

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { isAdminEmail, requireAdmin } from "@/lib/auth";
+import { isCategoryLabel } from "@/lib/categories";
 import { formatIDR } from "@/lib/currency";
 import { refreshUsdRate } from "@/lib/exchange-rate";
 import { sendEmail } from "@/lib/email";
@@ -111,11 +112,13 @@ export async function saveProductAction(_prev: ActionResult, formData: FormData)
   const weightGrams = Math.round(Number(formData.get("weightGrams") ?? 0));
   const status = String(formData.get("status") ?? "draft") as ProductInput["status"];
   const images = parseImageList(formData.get("images"), 12);
+  const category = String(formData.get("category") ?? "");
 
   if (!name) return fail("Give the piece a name.");
   if (!slug) return fail("The URL needs at least one letter or number.");
   if (!(priceUsd > 0)) return fail("Enter the price in US dollars, e.g. 45.");
   if (!Number.isFinite(weightGrams) || weightGrams <= 0) return fail("Enter the weight in grams — it’s used to calculate shipping.");
+  if (!isCategoryLabel(category)) return fail("Choose a category.");
   if (!["draft", "available", "sold"].includes(status)) return fail("Choose a status.");
   if (status === "available" && images.length === 0) return fail("Add at least one photo before putting a piece on sale.");
 
@@ -129,8 +132,9 @@ export async function saveProductAction(_prev: ActionResult, formData: FormData)
         weightGrams,
         status,
         images,
-        category: String(formData.get("category") ?? "").trim().slice(0, 60),
+        category,
         description: String(formData.get("description") ?? "").trim().slice(0, 4000),
+        story: String(formData.get("story") ?? "").trim().slice(0, 4000),
         details: String(formData.get("details") ?? "").trim().slice(0, 2000),
       },
       id,
@@ -252,6 +256,8 @@ export async function resetPageAction(slug: string): Promise<void> {
 // --- Settings --------------------------------------------------------------
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// Bank, country, location, then an optional branch: 8 or 11 characters.
+const SWIFT = /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
 
 export async function saveSettingsAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   await requireAdmin();
@@ -290,13 +296,17 @@ export async function saveSettingsAction(_prev: ActionResult, formData: FormData
     case "bank": {
       const paymentSuffix = int("paymentSuffix");
       const reservationHours = int("reservationHours");
+      const bankSwift = text("bankSwift", 40).replace(/\s+/g, "").toUpperCase();
       if (!(paymentSuffix >= 0 && paymentSuffix <= 99)) return fail("The unique ending must be two digits (00–99).");
       if (!(reservationHours >= 1 && reservationHours <= 168)) return fail("The payment window must be between 1 and 168 hours.");
+      if (!text("bankName")) return fail("Enter the bank name.");
       if (!text("bankAccountNumber")) return fail("Enter the account number.");
+      if (bankSwift && !SWIFT.test(bankSwift)) return fail("A SWIFT code has 8 or 11 letters and digits, e.g. BMRIIDJA.");
       patch = {
-        bankName: text("bankName", 40) || "BCA",
+        bankName: text("bankName", 40),
         bankAccountNumber: text("bankAccountNumber", 40),
         bankAccountName: text("bankAccountName", 80),
+        bankSwift,
         paymentSuffix,
         reservationHours,
       };

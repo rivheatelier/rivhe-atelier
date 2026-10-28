@@ -59,12 +59,18 @@ export default async function OrderPage({ params, searchParams }: Props) {
         <section className="mt-9 rounded-[2px] border border-line bg-surface p-5">
           <p className="eyebrow mb-4">Complete your payment</p>
           <PaymentDetails
-            bank={{ name: settings.bankName, accountNumber: settings.bankAccountNumber, accountName: settings.bankAccountName }}
+            bank={{
+              name: settings.bankName,
+              accountNumber: settings.bankAccountNumber,
+              accountName: settings.bankAccountName,
+              swift: settings.bankSwift,
+            }}
             amount={order.transferAmount}
             approx={
               order.currency === "USD" ? formatUSD(orderUsdTotal(order)) : undefined
             }
             deadline={formatDateTime(order.expiresAt)}
+            international={order.country !== "ID"}
           />
         </section>
       )}

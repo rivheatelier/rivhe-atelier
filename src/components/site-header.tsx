@@ -8,6 +8,7 @@ import { CurrencySwitch } from "@/components/currency-select";
 import { IconBag, IconClose, IconInstagram, IconMenu, IconSearch, IconUser } from "@/components/icons";
 import { ThemeSwitch, ThemeToggle } from "@/components/theme-switch";
 import { Wordmark } from "@/components/wordmark";
+import { CATEGORIES, categoryHref } from "@/lib/categories";
 import type { CurrencyCode } from "@/lib/currency";
 import type { Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
@@ -16,7 +17,6 @@ type Props = {
   cartCount: number;
   currency: CurrencyCode;
   currencies: CurrencyCode[];
-  categories: string[];
   instagram: string;
   theme: Theme;
 };
@@ -36,7 +36,7 @@ const SECONDARY_NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function SiteHeader({ cartCount, currency, currencies, categories, instagram, theme }: Props) {
+export function SiteHeader({ cartCount, currency, currencies, instagram, theme }: Props) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -126,7 +126,6 @@ export function SiteHeader({ cartCount, currency, currencies, categories, instag
       <MenuDrawer
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
-        categories={categories}
         currency={currency}
         currencies={currencies}
         instagram={instagram}
@@ -163,7 +162,6 @@ function SearchBar({ onClose }: { onClose: () => void }) {
 function MenuDrawer({
   open,
   onClose,
-  categories,
   currency,
   currencies,
   instagram,
@@ -171,7 +169,6 @@ function MenuDrawer({
 }: {
   open: boolean;
   onClose: () => void;
-  categories: string[];
   currency: CurrencyCode;
   currencies: CurrencyCode[];
   instagram: string;
@@ -212,14 +209,13 @@ function MenuDrawer({
                 Available now
               </Link>
             </li>
-            {categories.length > 1 &&
-              categories.map((category) => (
-                <li key={category}>
-                  <Link href={`/shop?category=${encodeURIComponent(category)}`} className="font-serif text-[30px] leading-tight">
-                    {category}
-                  </Link>
-                </li>
-              ))}
+            {CATEGORIES.map((category) => (
+              <li key={category.slug}>
+                <Link href={categoryHref(category)} className="font-serif text-[30px] leading-tight">
+                  {category.label}
+                </Link>
+              </li>
+            ))}
           </ul>
           <ul className="mt-10 space-y-4 border-t border-line pt-8">
             {SECONDARY_NAV.map((item) => (

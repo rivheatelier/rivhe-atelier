@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
+import { verifyCaptcha } from "@/lib/captcha";
 import { getCart, getCartIds, setCartIds } from "@/lib/cart";
 import { isShippableCountry } from "@/lib/countries";
 import { idrFromUsd, isCurrencyCode } from "@/lib/currency";
@@ -121,6 +122,10 @@ export async function trackOrderAction(_prev: { error?: string }, formData: Form
   const code = String(formData.get("code") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   if (!code || !email) return { error: "Enter your order number and the email you used." };
+  // Every lookup costs a freshly solved captcha, so order numbers can't be guessed at speed.
+  if (!(await verifyCaptcha(String(formData.get("altcha") ?? "")))) {
+    return { error: "The security check didn’t go through. Please try again." };
+  }
   const order = await findOrderByCodeAndEmail(code, email);
   if (!order) return { error: "We couldn’t find an order with that number and email." };
   redirect(`/order/${order.code}?t=${order.accessToken}`);

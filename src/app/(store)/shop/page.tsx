@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CurrencySwitch } from "@/components/currency-select";
 import { ProductCard } from "@/components/product-card";
+import { CATEGORIES, categoryHref, findCategory } from "@/lib/categories";
 import { getCurrency } from "@/lib/currency-server";
-import { listCategories, listStoreProducts } from "@/lib/products";
+import { listStoreProducts } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -17,22 +18,20 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
   const params = await searchParams;
   const pick = (key: string) => (typeof params[key] === "string" ? (params[key] as string) : undefined);
   const q = pick("q")?.slice(0, 60).trim() || undefined;
-  const category = pick("category");
+  const category = findCategory(pick("category"));
   const availableOnly = pick("available") === "1";
 
-  const [products, categories, currency] = await Promise.all([
-    listStoreProducts({ q, category, availableOnly }),
-    listCategories(),
+  const [products, currency] = await Promise.all([
+    listStoreProducts({ q, category: category?.label, availableOnly }),
     getCurrency(),
   ]);
 
-  const title = q ? `Results for “${q}”` : category ?? (availableOnly ? "Available now" : "Shop all");
+  const title = q ? `Results for “${q}”` : (category?.label ?? (availableOnly ? "Available now" : "Shop all"));
+  // Every category is always listed, so buyers see the whole range even before each one has pieces.
   const filters = [
     { label: "All", href: "/shop", active: !category && !availableOnly && !q },
     { label: "Available now", href: "/shop?available=1", active: availableOnly && !category },
-    ...(categories.length > 1
-      ? categories.map((c) => ({ label: c, href: `/shop?category=${encodeURIComponent(c)}`, active: category === c }))
-      : []),
+    ...CATEGORIES.map((c) => ({ label: c.label, href: categoryHref(c), active: category?.slug === c.slug })),
   ];
 
   return (

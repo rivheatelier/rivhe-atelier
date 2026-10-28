@@ -7,7 +7,7 @@ import { IconExternal } from "@/components/icons";
 import { requireAdmin } from "@/lib/auth";
 import { getOrderById } from "@/lib/orders";
 import { getUsdRate } from "@/lib/exchange-rate";
-import { adminGetProduct, adminListProducts } from "@/lib/products";
+import { adminGetProduct } from "@/lib/products";
 
 export const metadata: Metadata = { title: "Edit piece" };
 
@@ -19,9 +19,8 @@ export default async function EditProductPage({ params, searchParams }: Props) {
   await requireAdmin();
   const [{ id }, { saved }] = await Promise.all([params, searchParams]);
   if (!UUID.test(id)) notFound();
-  const [product, all, { rate: usdRate }] = await Promise.all([adminGetProduct(id), adminListProducts(), getUsdRate()]);
+  const [product, { rate: usdRate }] = await Promise.all([adminGetProduct(id), getUsdRate()]);
   if (!product) notFound();
-  const categories = [...new Set(all.map((p) => p.category).filter(Boolean))];
 
   const heldBy = product.heldByOrderId ? await getOrderById(product.heldByOrderId) : null;
 
@@ -50,7 +49,7 @@ export default async function EditProductPage({ params, searchParams }: Props) {
         )}
       </div>
       {saved && <Banner>Saved. Changes are live on the store.</Banner>}
-      <ProductForm product={product} categories={categories} usdRate={usdRate} />
+      <ProductForm product={product} usdRate={usdRate} />
       <div className="mt-10 border-t border-line pt-6">
         <DeleteProduct productId={product.id} disabled={product.status === "reserved"} />
       </div>

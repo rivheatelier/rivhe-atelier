@@ -88,6 +88,13 @@ export default async function ProductPage({ params }: { params: Params }) {
                 <p className="mt-7 text-[14px] leading-[1.85] whitespace-pre-line text-ink-2">{product.description}</p>
               )}
 
+              {product.story && (
+                <div className="mt-7">
+                  <h2 className="eyebrow text-muted">The story</h2>
+                  <p className="mt-2 text-[14px] leading-[1.85] whitespace-pre-line text-ink-2">{product.story}</p>
+                </div>
+              )}
+
               <div className="mt-7 border-t border-line">
                 <Accordion title="Details" defaultOpen>
                   <ul className="list-disc space-y-1 pl-4 marker:text-muted">

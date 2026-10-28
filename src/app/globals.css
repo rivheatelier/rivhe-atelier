@@ -227,3 +227,27 @@ html[data-theme="dark"] .theme-icon-dark {
   --yarl__color_button_disabled: color-mix(in oklab, var(--color-ink) 30%, transparent);
   --yarl__button_filter: none;
 }
+
+/* "I'm not a robot" check on Track your order (ALTCHA), restyled to match the form fields. */
+altcha-widget {
+  display: block;
+  min-height: 48px;
+  font-size: 14px;
+  --altcha-max-width: 100%;
+  --altcha-border-color: var(--color-line);
+  --altcha-border-radius: 2px;
+  --altcha-color-base: var(--color-surface);
+  --altcha-color-base-content: var(--color-ink);
+  --altcha-color-neutral: var(--color-line);
+  --altcha-color-neutral-content: var(--color-ink-2);
+  --altcha-color-primary: var(--color-ink);
+  --altcha-color-primary-content: var(--color-paper);
+  --altcha-color-success: var(--color-ok);
+  --altcha-color-success-content: var(--color-surface);
+  --altcha-color-error: var(--color-clay);
+  --altcha-color-error-content: var(--color-surface);
+  --altcha-checkbox-border-color: var(--color-muted);
+  --altcha-checkbox-border-radius: 2px;
+  --altcha-checkbox-size: 20px;
+  --altcha-spinner-color: var(--color-ink-2);
+}

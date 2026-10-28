@@ -17,6 +17,8 @@ export type Settings = {
   bankName: string;
   bankAccountNumber: string;
   bankAccountName: string;
+  /** For transfers from abroad; shown only on orders shipping outside Indonesia. */
+  bankSwift: string;
   /** Replaces the last two digits of every transfer amount. */
   paymentSuffix: number;
   /** How long an unpaid order holds its pieces. */
@@ -50,6 +52,7 @@ export const DEFAULT_SETTINGS: Settings = {
   bankName: "BCA",
   bankAccountNumber: PLACEHOLDER_BANK_NUMBER,
   bankAccountName: "PT Rivhé Atelier",
+  bankSwift: "",
   paymentSuffix: 17,
   reservationHours: 24,
   usdRate: 18150,

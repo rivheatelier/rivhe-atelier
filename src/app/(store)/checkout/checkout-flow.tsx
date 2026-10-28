@@ -305,7 +305,12 @@ export function CheckoutFlow({ items, currency, bank, paymentSuffix, reservation
                   <span className="text-[15px] text-ink">Bank Transfer</span>
                 </label>
                 <div className="mt-4">
-                  <PaymentDetails bank={bank} amount={transfer} approx={currency.code !== "IDR" ? show(displayTotal) : undefined} />
+                  <PaymentDetails
+                    bank={bank}
+                    amount={transfer}
+                    approx={currency.code !== "IDR" ? show(displayTotal) : undefined}
+                    international={address.country !== "ID"}
+                  />
                 </div>
               </div>
               <div className="mt-4 flex gap-3 rounded-[2px] bg-cream/70 p-4 text-[12px] leading-relaxed text-ink-2">
