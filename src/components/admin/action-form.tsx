@@ -33,11 +33,13 @@ export function ActionForm({
   action,
   children,
   submitLabel = "Save",
+  pendingLabel = "Saving…",
   className,
 }: {
   action: (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
   children: React.ReactNode;
   submitLabel?: string;
+  pendingLabel?: string;
   className?: string;
 }) {
   const [state, form, pending] = useFormAction(action, { ok: false });
@@ -47,7 +49,7 @@ export function ActionForm({
       {children}
       <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
         <button type="submit" disabled={pending} className="btn-primary h-11 px-7">
-          {pending ? "Saving…" : submitLabel}
+          {pending ? pendingLabel : submitLabel}
         </button>
         {!pending && (state.error || state.message) && (
           <p role="status" className={cn("text-[13px]", state.error ? "text-clay" : "text-moss")}>

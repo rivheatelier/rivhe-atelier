@@ -22,7 +22,7 @@ import {
 } from "@/lib/orders";
 import { EDITABLE_PAGES, resetPage, savePage } from "@/lib/pages";
 import { adminDeleteProduct, adminSaveProduct, type ProductInput } from "@/lib/products";
-import { loadSettings, updateSettings, type Settings } from "@/lib/settings";
+import { updateSettings, type Settings } from "@/lib/settings";
 import type { IntlCarrier } from "@/lib/shipping-types";
 import { createAuthClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
@@ -354,10 +354,11 @@ export async function refreshRatesAction(): Promise<ActionResult> {
   return done(`1 US$ = ${formatIDR(Math.round(latest.rate))} (${latest.source}).`);
 }
 
-export async function sendTestEmailAction(): Promise<ActionResult> {
-  const admin = await requireAdmin();
-  const settings = await loadSettings();
-  const to = settings.sellerEmail || admin.email;
+/** Sends the test email to any address the admin types, without changing the settings. */
+export async function sendTestEmailAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+  await requireAdmin();
+  const to = String(formData.get("to") ?? "").trim().toLowerCase().slice(0, 160);
+  if (!EMAIL.test(to)) return fail("That email address doesn’t look right.");
   const result = await sendEmail({ ...testEmail(), to, kind: "test" });
   if (result.status === "sent") return done(`Test email sent to ${to}.`);
   if (result.status === "logged") {

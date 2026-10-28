@@ -261,7 +261,11 @@ export default async function AdminSettingsPage() {
             />
           </div>
           <div className="mt-5 border-t border-line pt-5">
-            <ActionButton action={sendTestEmailAction} label="Send a test email" />
+            <ActionForm action={sendTestEmailAction} submitLabel="Send test email" pendingLabel="Sending…">
+              <Field label="Send a test email to" htmlFor="test-email-to" hint="Any inbox you can check, such as your own. The addresses above stay as they are.">
+                <input id="test-email-to" name="to" type="email" required defaultValue={settings.sellerEmail || admin.email} className="field" />
+              </Field>
+            </ActionForm>
           </div>
         </Card>
 
