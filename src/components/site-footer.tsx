@@ -1,12 +1,9 @@
 import Link from "next/link";
-import { CurrencySwitch } from "@/components/currency-select";
-import { ThemeSwitch } from "@/components/theme-switch";
 import { Wordmark } from "@/components/wordmark";
-import type { ActiveCurrency } from "@/lib/currency-server";
 import type { Settings } from "@/lib/settings";
-import type { Theme } from "@/lib/theme";
 
-export function SiteFooter({ settings, currency, theme }: { settings: Settings; currency: ActiveCurrency; theme: Theme }) {
+// Currency and light/dark switches live in the header and the phone menu.
+export function SiteFooter({ settings }: { settings: Settings }) {
   const columns: { title: string; links: { label: string; href: string; external?: boolean }[] }[] = [
     {
       title: "Shop",
@@ -65,15 +62,9 @@ export function SiteFooter({ settings, currency, theme }: { settings: Settings; 
         ))}
       </div>
       <div className="border-t border-line">
-        <div className="mx-auto flex max-w-7xl flex-col-reverse gap-4 px-6 py-5 text-[12px] text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <p>
-            © {new Date().getFullYear()} {settings.storeName}. Handmade in Indonesia.
-          </p>
-          <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
-            <CurrencySwitch value={currency.code} options={currency.options} />
-            <ThemeSwitch initial={theme} labels />
-          </div>
-        </div>
+        <p className="mx-auto max-w-7xl px-6 py-5 text-[12px] text-muted sm:px-8">
+          © {new Date().getFullYear()} {settings.storeName}. Handmade in Indonesia.
+        </p>
       </div>
     </footer>
   );

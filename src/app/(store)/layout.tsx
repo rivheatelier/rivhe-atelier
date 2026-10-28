@@ -31,7 +31,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         theme={theme}
       />
       <main>{children}</main>
-      <SiteFooter settings={settings} currency={currency} theme={theme} />
+      <SiteFooter settings={settings} />
     </>
   );
 }
