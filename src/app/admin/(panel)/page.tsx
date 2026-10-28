@@ -34,7 +34,7 @@ export default async function AdminDashboard() {
 
   const setup = [
     settings.bankAccountNumber === PLACEHOLDER_BANK_NUMBER && { text: "Add your real bank account for transfers", href: "/admin/settings#bank" },
-    !settings.sellerEmail && { text: "Choose the inbox that receives new-order emails", href: "/admin/settings#store" },
+    !settings.sellerEmail && { text: "Choose the inbox that receives new-order emails", href: "/admin/settings#email" },
     !emailProvider() && {
       text: "Connect an email service (Resend or SMTP) so buyers receive their confirmation and receipt",
       href: "/admin/settings#email",

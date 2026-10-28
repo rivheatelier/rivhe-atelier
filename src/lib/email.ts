@@ -8,6 +8,7 @@ export type EmailKind =
   | "receipt_seller"
   | "shipped_buyer"
   | "cancelled_buyer"
+  | "email_code"
   | "test";
 
 type Message = {

@@ -12,6 +12,12 @@ function sellerInbox(settings: Settings): string | null {
   return settings.sellerEmail || adminEmails()[0] || null;
 }
 
+// Store email can come from an address nobody reads (hello@rivhe.com), so buyers'
+// replies go to the contact email, or else to the seller's inbox.
+function buyerReplyTo(settings: Settings): string | undefined {
+  return settings.contactEmail || settings.sellerEmail || undefined;
+}
+
 async function withOrder(orderId: string, task: (order: Order, settings: Settings) => Promise<void>): Promise<void> {
   try {
     const [order, settings] = await Promise.all([getOrderById(orderId), loadSettings()]);
@@ -29,7 +35,7 @@ export function notifyOrderPlaced(orderId: string): Promise<void> {
       to: order.email,
       kind: "order_placed_buyer",
       orderId,
-      replyTo: settings.contactEmail || undefined,
+      replyTo: buyerReplyTo(settings),
     });
     const seller = sellerInbox(settings);
     if (seller) {
@@ -46,7 +52,7 @@ export function notifyPaymentConfirmed(orderId: string): Promise<void> {
       to: order.email,
       kind: "receipt_buyer",
       orderId,
-      replyTo: settings.contactEmail || undefined,
+      replyTo: buyerReplyTo(settings),
     });
     const seller = sellerInbox(settings);
     if (seller) {
@@ -62,7 +68,7 @@ export function notifyShipped(orderId: string): Promise<void> {
       to: order.email,
       kind: "shipped_buyer",
       orderId,
-      replyTo: settings.contactEmail || undefined,
+      replyTo: buyerReplyTo(settings),
     });
   });
 }
@@ -74,7 +80,7 @@ export function notifyCancelled(orderId: string, wasPaid: boolean): Promise<void
       to: order.email,
       kind: "cancelled_buyer",
       orderId,
-      replyTo: settings.contactEmail || undefined,
+      replyTo: buyerReplyTo(settings),
     });
   });
 }

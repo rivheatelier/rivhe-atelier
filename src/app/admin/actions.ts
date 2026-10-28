@@ -9,6 +9,7 @@ import { formatIDR } from "@/lib/currency";
 import { refreshUsdRate } from "@/lib/exchange-rate";
 import { sendEmail } from "@/lib/email";
 import { testEmail } from "@/lib/email-templates";
+import { confirmEmailCode, isVerifiedEmailField, sendEmailCode } from "@/lib/email-verification";
 import { notifyCancelled, notifyPaymentConfirmed, notifyShipped } from "@/lib/notify";
 import {
   cancelOrder,
@@ -272,16 +273,11 @@ export async function saveSettingsAction(_prev: ActionResult, formData: FormData
   let patch: Partial<Settings>;
   switch (formData.get("section")) {
     case "store": {
-      const sellerEmail = text("sellerEmail", 160).toLowerCase();
-      const contactEmail = text("contactEmail", 160).toLowerCase();
-      if (sellerEmail && !EMAIL.test(sellerEmail)) return fail("The order notification email doesn’t look right.");
-      if (contactEmail && !EMAIL.test(contactEmail)) return fail("The contact email doesn’t look right.");
+      // The two email addresses are changed under Email, each confirmed with a code.
       patch = {
         storeName: text("storeName", 80) || "RIVHÉ Atelier",
         tagline: text("tagline", 120),
         heroSubtitle: text("heroSubtitle", 160),
-        sellerEmail,
-        contactEmail,
         whatsapp: text("whatsapp", 24),
         instagram: text("instagram", 60).replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/$/, ""),
       };
@@ -368,4 +364,24 @@ export async function sendTestEmailAction(): Promise<ActionResult> {
     return fail("No email provider is set up yet (RESEND_API_KEY or SMTP_URL), so emails are only recorded in each order.");
   }
   return fail(`Sending failed: ${result.error}`);
+}
+
+/** Step 1 of changing a store email address: a code goes to the new one. */
+export async function sendEmailCodeAction(field: string, email: string): Promise<ActionResult> {
+  await requireAdmin();
+  if (!isVerifiedEmailField(field)) return fail("Unknown email setting.");
+  const address = String(email ?? "").trim().toLowerCase().slice(0, 160);
+  if (!EMAIL.test(address)) return fail("That email address doesn’t look right.");
+  return sendEmailCode(field, address);
+}
+
+/** Step 2: the code from that email switches the setting to the new address. */
+export async function verifyEmailCodeAction(field: string, code: string): Promise<ActionResult & { email?: string }> {
+  await requireAdmin();
+  if (!isVerifiedEmailField(field)) return fail("Unknown email setting.");
+  const digits = String(code ?? "").replace(/\D/g, "");
+  if (digits.length !== 6) return fail("Enter the 6-digit code from the email.");
+  const result = await confirmEmailCode(field, digits);
+  if (result.ok) refreshEverywhere();
+  return result;
 }

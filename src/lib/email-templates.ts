@@ -251,6 +251,20 @@ ${button(adminUrl(order), "Mark as shipped")}`,
   };
 }
 
+/** The code that confirms a new address for store email (Admin → Settings → Email). */
+export function emailCodeEmail(code: string, purpose: string, minutes: number): Email {
+  return {
+    subject: `${code} is your RIVHÉ Atelier code`,
+    html: layout(
+      `Your code is ${code}. It expires in ${minutes} minutes.`,
+      `${heading("Confirm this email address")}
+${para(`Enter this code in your store’s admin (Settings → Email) so ${esc(purpose)} come to this address:`)}
+<div style="margin:22px 0;padding:18px;background:${C.cream};text-align:center;font-family:${SERIF};font-size:34px;letter-spacing:8px;color:${C.ink}">${esc(code)}</div>
+${small(`The code expires in ${minutes} minutes. If you didn’t ask for it, ignore this email and nothing changes.`)}`,
+    ),
+  };
+}
+
 export function testEmail(): Email {
   return {
     subject: "Test email from RIVHÉ Atelier",

@@ -8,6 +8,7 @@ import {
 } from "@/app/admin/actions";
 import { ActionButton, ActionForm, Field } from "@/components/admin/action-form";
 import { ImageManager } from "@/components/admin/image-manager";
+import { VerifiedEmail } from "@/components/admin/verified-email";
 import { Card, PageTitle } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/auth";
 import { formatIDR, transferAmountFor } from "@/lib/currency";
@@ -62,12 +63,6 @@ export default async function AdminSettingsPage() {
               </Field>
               <Field label="Homepage subtitle" htmlFor="s-heroSubtitle" className="sm:col-span-2">
                 <input id="s-heroSubtitle" name="heroSubtitle" defaultValue={settings.heroSubtitle} className="field" />
-              </Field>
-              <Field label="Order notifications go to" htmlFor="s-sellerEmail" hint="New orders and payment receipts for you.">
-                <input id="s-sellerEmail" name="sellerEmail" type="email" defaultValue={settings.sellerEmail} placeholder={admin.email} className="field" />
-              </Field>
-              <Field label="Contact email for buyers" htmlFor="s-contactEmail" hint="Also used as the reply-to address.">
-                <input id="s-contactEmail" name="contactEmail" type="email" defaultValue={settings.contactEmail} className="field" />
               </Field>
               <Field label="WhatsApp number" htmlFor="s-whatsapp">
                 <input id="s-whatsapp" name="whatsapp" defaultValue={settings.whatsapp} placeholder="0812 3456 7890" className="field" />
@@ -245,13 +240,27 @@ export default async function AdminSettingsPage() {
         <Card id="email" title="Email">
           <p className="text-[13px] leading-relaxed text-ink-2">
             {provider === "resend"
-              ? "Sending with Resend."
+              ? "Sending with Resend, from the store’s own address. Buyers’ replies go to the contact email below."
               : provider === "smtp"
                 ? "Sending over SMTP."
                 : "Not connected. Order emails are saved on each order but not sent — add RESEND_API_KEY or SMTP_URL in Vercel."}
           </p>
           <p className="mt-1 text-[12px] text-muted">From: {emailSender()}</p>
-          <div className="mt-4">
+          <div className="mt-5 space-y-5 border-t border-line pt-5">
+            <VerifiedEmail
+              field="sellerEmail"
+              label="Order notifications go to"
+              hint="New orders and payment receipts for you. A new address takes effect once you enter the code emailed to it."
+              current={settings.sellerEmail}
+            />
+            <VerifiedEmail
+              field="contactEmail"
+              label="Contact email for buyers"
+              hint="Shown on the Contact page and used as the reply-to address. Also confirmed with a code."
+              current={settings.contactEmail}
+            />
+          </div>
+          <div className="mt-5 border-t border-line pt-5">
             <ActionButton action={sendTestEmailAction} label="Send a test email" />
           </div>
         </Card>

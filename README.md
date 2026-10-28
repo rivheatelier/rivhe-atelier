@@ -21,7 +21,8 @@ Toko online untuk produk crochet handmade. Setiap barang hanya ada **satu per wa
 - Overview: pesanan yang menunggu transfer / perlu dikirim, omzet bulan ini, checklist setup
 - Pesanan: konfirmasi pembayaran (→ receipt otomatis ke email pembeli **dan** penjual), input resi (→ email ke pembeli), selesai, cancel, catatan pribadi, salin alamat untuk label, riwayat email
 - Produk: upload foto dari HP (otomatis di-resize), urutkan foto, harga dalam USD (pratinjau Rupiah dari kurs live), kategori, *Story*, status Draft / Available / Sold
-- Halaman konten, foto beranda, rekening bank + SWIFT code & angka unik, kurs live, ongkir (JNE/SiCepat dalam negeri; DHL Express & Aramex via Pos Indonesia untuk luar negeri), email test, ganti password
+- Halaman konten, foto beranda, rekening bank + SWIFT code & angka unik, kurs live, ongkir (JNE/SiCepat dalam negeri; DHL Express & Aramex via Pos Indonesia untuk luar negeri), ganti password
+- Email: alamat penerima notifikasi order dan email kontak pembeli diatur sendiri oleh admin, dan alamat baru baru aktif setelah kode 6 digit yang dikirim ke alamat itu dimasukkan. Ada juga tombol email test
 
 ## Alur pesanan
 
@@ -95,11 +96,21 @@ npm run dev        # http://localhost:3000  ·  admin: http://localhost:3000/adm
 
 | Fitur | Env | Tanpa ini |
 |---|---|---|
-| Kirim email | `RESEND_API_KEY` (verifikasi domain rivhe.com di Resend) **atau** `SMTP_URL`, plus `EMAIL_FROM` | Email tidak terkirim, hanya tersimpan & bisa dilihat di halaman order admin |
+| Kirim email | `RESEND_API_KEY` (disarankan, lihat *Email toko* di bawah) **atau** `SMTP_URL` | Email tidak terkirim, hanya tersimpan & bisa dilihat di halaman order admin |
 | Ongkir live JNE/SiCepat/AnterAja/J&T | `BITESHIP_API_KEY` + kode pos asal di Settings | Ongkir dihitung dari tabel estimasi per wilayah kode pos |
 | Pencocokan transfer otomatis | `MOOTA_WEBHOOK_SECRET`, webhook Moota → `https://rivhe.com/api/webhooks/moota` | Admin menekan *Confirm payment received* setelah cek mutasi rekening |
 
 > Webhook Moota mengikuti format umum Moota (array mutasi, header `Signature` HMAC-SHA256). Uji dulu dengan fitur *test webhook* di Moota sebelum diandalkan.
+
+### Email toko (Resend, dari hello@rivhe.com)
+
+Cukup diatur sekali. Setelah itu tidak perlu password atau App Password Gmail siapa pun.
+
+1. Daftar di [resend.com](https://resend.com), buka **Domains → Add domain** dan isi `rivhe.com`. Region Tokyo paling dekat ke Indonesia.
+2. Resend menampilkan beberapa record DNS: MX dan TXT di `send`, serta TXT di `resend._domainkey`. Karena DNS rivhe.com dikelola di Vercel, tambahkan record itu di **Vercel → Domains → rivhe.com → DNS Records**, lalu klik **Verify** di Resend.
+3. Buka **API Keys → Create API key** (Sending access, domain rivhe.com). Isi `RESEND_API_KEY` di Vercel, lalu Redeploy. `EMAIL_FROM` boleh dikosongkan karena defaultnya `RIVHÉ Atelier <hello@rivhe.com>`. Hapus `SMTP_URL` bila ada.
+
+Setelah itu admin mengatur sendiri di **Settings → Email** ke mana notifikasi order dan balasan pembeli dikirim. Untuk mengganti alamat: klik **Change**, masukkan alamat baru, lalu masukkan kode 6 digit yang dikirim ke alamat itu. Alamat `hello@rivhe.com` hanya untuk mengirim. Balasan pembeli masuk ke email kontak.
 
 Ongkir internasional: tarif per kg untuk 3 zona (Asia Tenggara, Asia Pasifik, lainnya), diatur di Settings → Shipping.
 
