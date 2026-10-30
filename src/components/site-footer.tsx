@@ -4,7 +4,7 @@ import type { Settings } from "@/lib/settings";
 
 // Currency and light/dark switches live in the header and the phone menu.
 export function SiteFooter({ settings }: { settings: Settings }) {
-  const columns: { title: string; links: { label: string; href: string; external?: boolean }[] }[] = [
+  const columns: { title: string; links: { label: string; href: string }[] }[] = [
     {
       title: "Shop",
       links: [
@@ -26,9 +26,6 @@ export function SiteFooter({ settings }: { settings: Settings }) {
       links: [
         { label: "About", href: "/about" },
         { label: "Contact", href: "/contact" },
-        ...(settings.instagram
-          ? [{ label: "Instagram", href: `https://instagram.com/${settings.instagram}`, external: true }]
-          : []),
       ],
     },
   ];
@@ -46,15 +43,9 @@ export function SiteFooter({ settings }: { settings: Settings }) {
             <ul className="mt-4 space-y-2.5 text-[14px] text-ink-2">
               {column.links.map((link) => (
                 <li key={link.href}>
-                  {link.external ? (
-                    <a href={link.href} target="_blank" rel="noreferrer" className="hover:text-ink">
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link href={link.href} className="hover:text-ink">
-                      {link.label}
-                    </Link>
-                  )}
+                  <Link href={link.href} className="hover:text-ink">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>

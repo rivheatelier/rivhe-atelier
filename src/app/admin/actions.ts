@@ -279,7 +279,6 @@ export async function saveSettingsAction(_prev: ActionResult, formData: FormData
         tagline: text("tagline", 120),
         heroSubtitle: text("heroSubtitle", 160),
         whatsapp: text("whatsapp", 24),
-        instagram: text("instagram", 60).replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/$/, ""),
       };
       break;
     }

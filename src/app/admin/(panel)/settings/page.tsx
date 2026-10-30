@@ -67,9 +67,6 @@ export default async function AdminSettingsPage() {
               <Field label="WhatsApp number" htmlFor="s-whatsapp">
                 <input id="s-whatsapp" name="whatsapp" defaultValue={settings.whatsapp} placeholder="0812 3456 7890" className="field" />
               </Field>
-              <Field label="Instagram username" htmlFor="s-instagram">
-                <input id="s-instagram" name="instagram" defaultValue={settings.instagram} placeholder="rivhe.atelier" className="field" />
-              </Field>
             </div>
           </ActionForm>
         </Card>

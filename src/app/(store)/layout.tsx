@@ -25,7 +25,6 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         cartCount={cartIds.length}
         currency={currency.code}
         currencies={currency.options}
-        instagram={settings.instagram}
         theme={theme}
       />
       <main>{children}</main>

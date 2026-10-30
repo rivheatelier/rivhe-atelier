@@ -121,7 +121,7 @@ Ongkir internasional: tarif per kg untuk 3 zona (Asia Tenggara, Asia Pasifik, la
 Semua bisa dari `/admin/settings`, kecuali yang bertanda *env*:
 
 - [ ] **Rekening bank asli** (saat ini placeholder `123 456 7890`)
-- [ ] Email notifikasi penjual, email kontak, WhatsApp, Instagram
+- [ ] Email notifikasi penjual, email kontak, WhatsApp
 - [ ] Harga, nama, ukuran produk contoh (*Pastel Horizon Bag*, *Seaglass Weave Bag*)
 - [ ] Teks About / Terms / Shipping & Returns (`/admin/pages`)
 - [ ] Penyedia email (*env*) dan, bila perlu, Biteship (*env*)

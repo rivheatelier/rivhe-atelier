@@ -124,13 +124,6 @@ export const IconZoom = (p: IconProps) => (
     <path d="m15.5 15.5 4.75 4.75M10.75 8.25v5M8.25 10.75h5" />
   </Svg>
 );
-export const IconInstagram = (p: IconProps) => (
-  <Svg {...p}>
-    <rect x="3.75" y="3.75" width="16.5" height="16.5" rx="4.5" />
-    <circle cx="12" cy="12" r="3.9" />
-    <circle cx="17.1" cy="6.9" r=".55" fill="currentColor" />
-  </Svg>
-);
 export const IconChat = (p: IconProps) => (
   <Svg {...p}>
     <path d="M4.25 19.75 5.4 16.3A7.75 7.75 0 1 1 8.3 19z" />

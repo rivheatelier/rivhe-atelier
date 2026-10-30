@@ -12,7 +12,6 @@ export type Settings = {
   heroImages: string[];
   sellerEmail: string;
   contactEmail: string;
-  instagram: string;
   whatsapp: string;
   bankName: string;
   bankAccountNumber: string;
@@ -47,7 +46,6 @@ export const DEFAULT_SETTINGS: Settings = {
   heroImages: ["/seed/pastel-horizon-2.jpg", "/seed/seaglass-weave-2.jpg", "/seed/pastel-horizon-1.jpg"],
   sellerEmail: "",
   contactEmail: "",
-  instagram: "",
   whatsapp: "",
   bankName: "BCA",
   bankAccountNumber: PLACEHOLDER_BANK_NUMBER,

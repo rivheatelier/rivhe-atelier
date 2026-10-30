@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CurrencySwitch } from "@/components/currency-select";
-import { IconBag, IconClose, IconInstagram, IconMenu, IconSearch, IconUser } from "@/components/icons";
+import { IconBag, IconClose, IconMenu, IconSearch, IconUser } from "@/components/icons";
 import { ThemeSwitch, ThemeToggle } from "@/components/theme-switch";
 import { Wordmark } from "@/components/wordmark";
 import { CATEGORIES, categoryHref } from "@/lib/categories";
@@ -17,7 +17,6 @@ type Props = {
   cartCount: number;
   currency: CurrencyCode;
   currencies: CurrencyCode[];
-  instagram: string;
   theme: Theme;
 };
 
@@ -36,7 +35,7 @@ const SECONDARY_NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function SiteHeader({ cartCount, currency, currencies, instagram, theme }: Props) {
+export function SiteHeader({ cartCount, currency, currencies, theme }: Props) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -128,7 +127,6 @@ export function SiteHeader({ cartCount, currency, currencies, instagram, theme }
         onClose={() => setMenuOpen(false)}
         currency={currency}
         currencies={currencies}
-        instagram={instagram}
         theme={theme}
       />
     </>
@@ -164,14 +162,12 @@ function MenuDrawer({
   onClose,
   currency,
   currencies,
-  instagram,
   theme,
 }: {
   open: boolean;
   onClose: () => void;
   currency: CurrencyCode;
   currencies: CurrencyCode[];
-  instagram: string;
   theme: Theme;
 }) {
   return (
@@ -193,31 +189,32 @@ function MenuDrawer({
           <button type="button" onClick={onClose} aria-label="Close menu" className="grid h-10 w-10 place-items-center">
             <IconClose />
           </button>
-          <Wordmark size="sm" />
+          <Wordmark />
           <span className="w-10" />
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-7 py-9" aria-label="Menu">
-          <ul className="space-y-3">
+        {/* Smaller than the wordmark, and tight enough that the second list still fits on a typical phone. */}
+        <nav className="flex-1 overflow-y-auto px-7 py-7" aria-label="Menu">
+          <ul className="space-y-2">
             <li>
-              <Link href="/shop" className="font-serif text-[30px] leading-tight">
+              <Link href="/shop" className="font-serif text-[22px] leading-tight">
                 Shop all
               </Link>
             </li>
             <li>
-              <Link href="/shop?available=1" className="font-serif text-[30px] leading-tight">
+              <Link href="/shop?available=1" className="font-serif text-[22px] leading-tight">
                 Available now
               </Link>
             </li>
             {CATEGORIES.map((category) => (
               <li key={category.slug}>
-                <Link href={categoryHref(category)} className="font-serif text-[30px] leading-tight">
+                <Link href={categoryHref(category)} className="font-serif text-[22px] leading-tight">
                   {category.label}
                 </Link>
               </li>
             ))}
           </ul>
-          <ul className="mt-10 space-y-4 border-t border-line pt-8">
+          <ul className="mt-8 space-y-3 border-t border-line pt-7">
             {SECONDARY_NAV.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="eyebrow text-ink-2">
@@ -231,17 +228,6 @@ function MenuDrawer({
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-7 py-5">
           <CurrencySwitch value={currency} options={currencies} />
           <ThemeSwitch initial={theme} />
-          {instagram && (
-            <a
-              href={`https://instagram.com/${instagram}`}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Instagram"
-              className="grid h-10 w-10 place-items-center text-ink-2"
-            >
-              <IconInstagram />
-            </a>
-          )}
         </div>
       </div>
     </div>

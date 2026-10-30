@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IconChat, IconInstagram, IconMail } from "@/components/icons";
+import { IconChat, IconMail } from "@/components/icons";
 import { getSettings } from "@/lib/settings";
 import { whatsappLink } from "@/lib/utils";
 
@@ -19,12 +19,6 @@ export default async function ContactPage() {
       label: "Email",
       value: settings.contactEmail,
       href: `mailto:${settings.contactEmail}`,
-    },
-    settings.instagram && {
-      icon: IconInstagram,
-      label: "Instagram",
-      value: `@${settings.instagram}`,
-      href: `https://instagram.com/${settings.instagram}`,
     },
   ].filter((c): c is Exclude<typeof c, "" | false> => Boolean(c));
 
