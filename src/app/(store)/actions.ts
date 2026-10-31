@@ -15,6 +15,7 @@ import { getProductsByIds } from "@/lib/products";
 import { getSettings } from "@/lib/settings";
 import { getShippingOptions, signOptions, verifyQuote } from "@/lib/shipping";
 import type { ShippingSource, SignedShippingOption } from "@/lib/shipping-types";
+import { whatsappLink } from "@/lib/utils";
 import { normalizeAddress, validateAddress, type AddressInput } from "@/lib/validation";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -129,4 +130,14 @@ export async function trackOrderAction(_prev: { error?: string }, formData: Form
   const order = await findOrderByCodeAndEmail(code, email);
   if (!order) return { error: "We couldn’t find an order with that number and email." };
   redirect(`/order/${order.code}?t=${order.accessToken}`);
+}
+
+/**
+ * The wa.me link behind WhatsApp on the Contact page, which leaves the number out so bots
+ * collecting phone numbers find nothing there. Each link costs a freshly solved captcha.
+ */
+export async function revealWhatsappAction(payload: string): Promise<string | null> {
+  if (!(await verifyCaptcha(String(payload ?? "")))) return null;
+  const { whatsapp } = await getSettings();
+  return whatsapp ? whatsappLink(whatsapp, "Hi RIVHÉ Atelier!") : null;
 }

@@ -15,6 +15,7 @@ Toko online untuk produk crochet handmade. Setiap barang hanya ada **satu per wa
 - Checkout langsung di web tanpa akun: **Alamat → Ongkir (otomatis) → Pembayaran → Review → Place Order**
 - **Transfer bank dengan 2 digit terakhir diganti `17`** (contoh: IDR 1,160,000 → **IDR 1,160,017**). Logo bank tampil bila namanya dikenali (saat ini Mandiri). Pesanan ke luar negeri juga menampilkan **SWIFT code** dan catatan agar memilih biaya *OUR*
 - Halaman status pesanan dan *Track your order* (nomor order + email), dilindungi captcha **ALTCHA**: proof-of-work di browser, tanpa akun atau key pihak ketiga, dan tiap solusi hanya bisa dipakai sekali
+- Nomor WhatsApp di halaman *Contact* tidak ada di HTML, jadi bot pengumpul nomor tidak menemukannya. Tombol *Chat with us* menjalankan captcha ALTCHA yang sama, lalu server memberi link wa.me dan browser langsung membukanya
 - Halaman About / Shipping & Returns / Care / Terms (bisa diedit dari admin)
 
 **Admin (`/admin`, mobile-first dengan tab bar bawah)**
